@@ -72,6 +72,8 @@ public class CraftingUI extends JPanel {
             i[0] = i[0].concat("</html>");
 
             leftPanel.add(new JLabel(i[0]), BorderLayout.NORTH, 0);
+            revalidate();
+            repaint();
         }
 
         if(!currentTrinkets.equals(player.getTrinkets())) {
@@ -80,7 +82,7 @@ public class CraftingUI extends JPanel {
 
             currentTrinkets.forEach(e -> {
                 try {
-                    trinketsPanel.add(new JLabel(new ImageIcon(ImageIO.read(e.getAsset()))));
+                    trinketsPanel.add(new JLabel(new ImageIcon(ImageIO.read(e.getTexture().getFile()))));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -89,6 +91,8 @@ public class CraftingUI extends JPanel {
             leftPanel.add(trinketsPanel, BorderLayout.SOUTH, 1);
 
             currentTrinkets = new ArrayList<>(player.getTrinkets());
+            revalidate();
+            repaint();
         }
     }
 

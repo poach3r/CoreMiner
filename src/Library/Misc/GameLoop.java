@@ -4,14 +4,30 @@ public class GameLoop {
     private float ups;
     private float fps;
     private boolean running;
-    private Runnable logicUpdate;
-    private Runnable renderUpdate;
+    private final Runnable logicUpdate;
+    private final Runnable renderUpdate;
 
     public GameLoop(Runnable logicUpdate, Runnable renderUpdate) {
-        ups = 60;
+        ups = 20;
         fps = 60;
         this.logicUpdate = logicUpdate;
         this.renderUpdate = renderUpdate;
+    }
+
+    public void setFps(float fps) {
+        this.fps = fps;
+    }
+
+    public float getFps() {
+        return fps;
+    }
+
+    public void setUps(float ups) {
+        this.ups = ups;
+    }
+
+    public float getUps() {
+        return ups;
     }
 
     public boolean isRunning() {

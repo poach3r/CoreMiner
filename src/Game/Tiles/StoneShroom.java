@@ -7,7 +7,7 @@ import Library.Map.Tile;
 
 public class StoneShroom extends Tile {
     public StoneShroom() {
-        super("stoneShroom", TextureIndex.stoneShroom.getAsset(), false, false, SoundIndex.grassStep);
+        super(11, "stoneShroom", TextureIndex.stoneShroom, false, false, SoundIndex.grassStep);
         addResource(ItemIndex.stone, 1);
         addResource(ItemIndex.mushroom, 1);
     }

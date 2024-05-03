@@ -1,35 +1,42 @@
 package Library.Items;
 
 import Game.Items.ItemType;
+import Library.Graphics.Texture;
 
-import java.io.File;
 import java.util.HashMap;
 
 public class GenericItem {
     private final HashMap<GenericItem, Integer> requiredItems;
-    private final File asset;
+    private final Texture texture;
     private final int value;
     private final String name;
     private ItemType itemType;
+    private final int id;
 
-    public GenericItem(String name, File asset, int value) {
+    public GenericItem(int id, String name, Texture texture, int value) {
+        this.id = id;
         this.name = name;
-        this.asset = asset;
+        this.texture = texture;
         this.value = value;
         itemType = ItemType.RESOURCE;
         requiredItems = new HashMap<>();
     }
 
-    public GenericItem(String name, File asset, int value, ItemType itemType) {
+    public GenericItem(int id, String name, Texture texture, int value, ItemType itemType) {
+        this.id = id;
         this.name = name;
-        this.asset = asset;
+        this.texture = texture;
         this.value = value;
         this.itemType = itemType;
         requiredItems = new HashMap<>();
     }
 
-    public File getAsset() {
-        return asset;
+    public int getId() {
+        return id;
+    }
+
+    public Texture getTexture() {
+        return texture;
     }
 
     public int getValue() {

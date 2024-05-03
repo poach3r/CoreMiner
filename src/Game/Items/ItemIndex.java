@@ -5,6 +5,7 @@ import Game.Items.Tools.CopperDrill;
 import Game.Items.Tools.IronDrill;
 import Game.Items.Tools.StonePickaxe;
 import Game.Items.Trinkets.GaiaCharm;
+import Game.Items.Trinkets.HermesBoots;
 import Library.Items.GenericItem;
 import Library.Items.GenericTool;
 import Library.Items.GenericTrinket;
@@ -45,11 +46,14 @@ public class ItemIndex {
     }};
 
     public static GaiaCharm gaiaCharm = new GaiaCharm();
+    public static GenericTrinket hermesBoots = new HermesBoots();
     public static List<GenericTrinket> trinkets = new ArrayList<>() {{
        add(gaiaCharm);
+       add(hermesBoots);
     }};
 
     public static List<GenericTrinket> craftableTrinkets = new ArrayList<>() {{
        add(gaiaCharm);
+       add(hermesBoots);
     }};
 }

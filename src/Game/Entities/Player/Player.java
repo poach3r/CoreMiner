@@ -1,5 +1,6 @@
 package Game.Entities.Player;
 
+import Game.Graphics.TextureIndex;
 import Game.Items.Tools.StonePickaxe;
 import Library.Items.GenericTool;
 import Library.Items.GenericTrinket;
@@ -23,9 +24,9 @@ public class Player extends Library.Entities.GenericEntity {
     private ArrayList<GenericTrinket> trinkets;
 
     public Player() {
-        super("player", new File("assets/images/sheep.png"), 0, 0, 10, 1, 5);
-        iTime = 60;
-        timeSinceHit = 60;
+        super(0, "player", TextureIndex.player, 0, 0, 10, 1, 32);
+        iTime = 10;
+        timeSinceHit = 10;
         timeSinceLastMine = 60;
         tool = new StonePickaxe();
         trinkets = new ArrayList<>();

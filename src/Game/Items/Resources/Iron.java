@@ -5,6 +5,6 @@ import Library.Items.GenericItem;
 
 public class Iron extends GenericItem {
     public Iron() {
-        super("iron", TextureIndex.iron.getAsset(), 5);
+        super(4, "iron", TextureIndex.iron, 5);
     }
 }

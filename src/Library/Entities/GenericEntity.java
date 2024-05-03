@@ -1,46 +1,55 @@
 package Library.Entities;
 
+import Library.Graphics.Texture;
 import Library.Items.GenericItem;
 
+import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /** Generic entity template
  * @author poacher
  */
 public class GenericEntity {
-    private int pos;
     private int x;
     private int y;
     private int hp;
     private int dmg;
-    private File asset;
+    private Texture texture;
     private String name;
     private int speed;
     private HashMap<GenericItem, Integer> inventory;
-    private int timeSinceLastMove;
+    private final int id;
+    private Rectangle hitbox;
 
-    public GenericEntity(String name, File asset, int x, int y, int hp, int dmg, int speed) {
+    public GenericEntity(int id, String name, Texture texture, int x, int y, int hp, int dmg, int speed) {
+        this.id = id;
         this.name = name;
-        this.asset = asset;
+        this.texture = texture;
         this.x = x;
         this.y = y;
-        this.pos = y * 16 + x;
         this.hp = hp;
         this.dmg = dmg;
         this.speed = speed;
         inventory = new HashMap<>();
-        timeSinceLastMove = 0;
+        hitbox = new Rectangle(x, y, texture.getImage().getWidth(), texture.getImage().getHeight());
     }
 
-    public int getPos() {
-        return pos;
+    public Rectangle getHitbox() {
+        return hitbox;
+    }
+
+    public void setHitbox(Rectangle hitbox) {
+        this.hitbox = hitbox;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setX(int x) {
         this.x = x;
-        this.pos = y * 16 + x;
+        hitbox.setLocation(x, y);
     }
 
     public int getX() {
@@ -49,7 +58,7 @@ public class GenericEntity {
 
     public void setY(int y) {
         this.y = y;
-        this.pos = y * 16 + x;
+        hitbox.setLocation(x, y);
     }
 
     public int getY() {
@@ -72,12 +81,12 @@ public class GenericEntity {
         this.dmg = dmg;
     }
 
-    public File getAsset() {
-        return asset;
+    public Texture getTexture() {
+        return texture;
     }
 
-    public void setAsset(File asset) {
-        this.asset = asset;
+    public void setTexture(Texture texture) {
+        this.texture = texture;
     }
 
     public String getName() {
@@ -124,13 +133,5 @@ public class GenericEntity {
 
     public HashMap<GenericItem, Integer> getInventory() {
         return inventory;
-    }
-
-    public int getTimeSinceLastMove() {
-        return timeSinceLastMove;
-    }
-
-    public void setTimeSinceLastMove(int timeSinceLastMove) {
-        this.timeSinceLastMove = timeSinceLastMove;
     }
 }

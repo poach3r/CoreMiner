@@ -21,6 +21,12 @@ public class TextureIndex {
     public static Texture iron = new Texture(new File("assets/images/iron.png"), "iron");
     public static Texture thunderStone = new Texture(new File("assets/images/thunderStone.png"), "thunderStone");
     public static Texture solidLightning = new Texture(new File("assets/images/solidLightning.png"), "solidLightning");
+    public static Texture drainedThunderStone = new Texture(new File("assets/images/drainedThunderStone.png"), "drainedThunderStone");
+    public static Texture Void = new Texture(new File("assets/images/void.png"), "void");
+    public static Texture player = new Texture(new File("assets/images/sheep.png"), "player");
+    public static Texture sheep = new Texture(new File("assets/images/sheep.png"), "sheep");
+    public static Texture zombie = new Texture(new File("assets/images/zombie.png"), "zombie");
+    public static Texture mushyZombie = new Texture(new File("assets/images/mushyZombie.png"), "mushyZombie");
 
     public static Texture stonePickaxe = new Texture(new File("assets/images/stonePickaxe.png"), "stonePickaxe");
     public static Texture copperDrill = new Texture(new File("assets/images/copperDrill.png"), "copperDrill");

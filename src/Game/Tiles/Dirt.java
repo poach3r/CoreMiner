@@ -6,7 +6,7 @@ import Game.Items.ItemIndex;
 
 public class Dirt extends Library.Map.Tile {
     public Dirt() {
-        super("dirt", TextureIndex.dirt.getAsset(), false, true, SoundIndex.grassStep);
+        super(1, "dirt", TextureIndex.dirt, false, true, SoundIndex.grassStep);
         addResource(ItemIndex.dirt, 1);
     }
 }

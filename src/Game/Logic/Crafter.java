@@ -25,6 +25,7 @@ public class Crafter {
     public boolean attemptToCraft(GenericItem item) {
         AtomicBoolean crafted = new AtomicBoolean(true);
 
+        // loop through each item in the recipe and compare it to the players inventory
         item.getRecipe().forEach((key, value) -> {
             if(!crafted.get())
                 return;

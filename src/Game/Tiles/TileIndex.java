@@ -20,4 +20,5 @@ public class TileIndex {
     public static Tile iron = new Iron();
     public static Tile thunderStone = new ThunderStone();
     public static Tile solidLightning = new SolidLightning();
+    public static Tile drainedThunderStone = new DrainedThunderStone();
 }

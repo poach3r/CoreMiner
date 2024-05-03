@@ -1,9 +1,9 @@
 package Library.Map;
 
 import Library.Audio.Sound;
+import Library.Graphics.Texture;
 import Library.Items.GenericItem;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -13,15 +13,17 @@ import java.util.ArrayList;
  */
 public class Tile {
     private final String name;
-    private final File asset;
+    private final Texture texture;
     private final boolean collision;
     private final boolean growing;
     private final ArrayList<GenericItem> resources;
     private final Sound stepSound;
+    private final int id;
 
-    public Tile(String name, File asset, boolean collision, boolean growing, Sound stepSound) {
+    public Tile(int id, String name, Texture texture, boolean collision, boolean growing, Sound stepSound) {
+        this.id = id;
         this.name = name;
-        this.asset = asset;
+        this.texture = texture;
         this.collision = collision;
         this.growing = growing;
         this.stepSound = stepSound;
@@ -29,16 +31,21 @@ public class Tile {
     }
 
     public Tile(Tile tile) {
+        this.id = tile.getId();
         this.name = tile.getName();
-        this.asset = tile.getAsset();
+        this.texture = tile.getTexture();
         this.collision = tile.hasCollision();
         this.growing = tile.grows();
         this.resources = tile.getResources();
         this.stepSound = tile.getStepSound();
     }
 
-    public File getAsset() {
-        return asset;
+    public int getId() {
+        return id;
+    }
+
+    public Texture getTexture() {
+        return texture;
     }
 
     public boolean hasCollision() {

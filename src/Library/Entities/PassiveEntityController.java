@@ -1,79 +1,100 @@
 package Library.Entities;
 
-import Game.Graphics.Foreground;
+import Library.Graphics.Renderer;
+import Library.Map.Tile;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-/** Default controller for passive entities
+/**
+ * Default controller for passive entities
+ *
  * @author poacher
  */
 public class PassiveEntityController extends GenericEntityController {
-    private Random movementRandomizer;
-    private Foreground fg;
+    private final Random movementRandomizer;
+    private final Renderer renderer;
     private boolean entityRemoved;
+    private ArrayList<GenericEntity> entitiesToRemove;
 
-    public PassiveEntityController(Foreground fg) {
+    public PassiveEntityController(Renderer fg) {
         super();
         movementRandomizer = new Random();
-        this.fg = fg;
+        this.renderer = fg;
         entityRemoved = false;
+        entitiesToRemove = null;
     }
 
     @Override
     public void move() {
-        ArrayList<GenericEntity> temp = new ArrayList<>(entities);
         for (GenericEntity entity : this.getEntities()) {
-            if(entity.getTimeSinceLastMove() == entity.getSpeed()) {
-                entity.setTimeSinceLastMove(0);
-                if(getMap().getTiles()[entity.getY()][entity.getX()].getName().equals("void") || entity.getHp() < 1) {
-                    temp.remove(entity);
-                    fg.remove(entity);
-                    //fg.load();
-                    entityRemoved = true;
-                    continue;
-                }
+            switch (movementRandomizer.nextInt(4)) {
+                case 0 -> {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getX() >= 1024 - entity.getTexture().getImage().getWidth() - 1)
+                            break;
 
-                switch(movementRandomizer.nextInt(4)) {
-                    case 0 -> {
-                        if(entity.getX() < 15)
-                            if(!getMap().getTiles()[entity.getY()][entity.getX() + 1].hasCollision()) {
-                                entity.setX(entity.getX() + 1);
-                                fg.promptUpdate();
-                            }
+                        if (getMap().getTileAtPos(entity.getX() + 1, entity.getY()).stream().anyMatch(Tile::hasCollision))
+                            break;
+
+                        entity.setX(entity.getX() + 1);
+                        renderer.promptUpdate();
                     }
-                    case 1 -> {
-                        if(entity.getX() > 0)
-                            if(!getMap().getTiles()[entity.getY()][entity.getX() - 1].hasCollision()) {
-                                entity.setX(entity.getX() - 1);
-                                fg.promptUpdate();
-                            }
+                }
+                case 1 -> {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getX() <= 0)
+                            break;
+
+                        if (getMap().getTileAtPos(entity.getX() - 1, entity.getY()).stream().anyMatch(Tile::hasCollision))
+                            break;
+
+                        entity.setX(entity.getX() - 1);
+                        renderer.promptUpdate();
                     }
-                    case 2 -> {
-                        if(entity.getY() < 15)
-                            if(!getMap().getTiles()[entity.getY() + 1][entity.getX()].hasCollision()) {
-                                entity.setY(entity.getY() + 1);
-                                fg.promptUpdate();
-                            }
+                }
+                case 2 -> {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getY() >= 1024 - entity.getTexture().getImage().getWidth() - 1)
+                            break;
+
+                        if (getMap().getTileAtPos(entity.getX() , entity.getY() + 1).stream().anyMatch(Tile::hasCollision))
+                            break;
+
+                        entity.setY(entity.getY() + 1);
+                        renderer.promptUpdate();
                     }
-                    case 3 -> {
-                        if(entity.getY() > 0)
-                            if(!getMap().getTiles()[entity.getY() - 1][entity.getX()].hasCollision()) {
-                                entity.setY(entity.getY() - 1);
-                                fg.promptUpdate();
-                            }
+                }
+                case 3 -> {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getY() <= 0)
+                            break;
+
+                        if (getMap().getTileAtPos(entity.getX(), entity.getY() - 1).stream().anyMatch(Tile::hasCollision))
+                            break;
+
+                        entity.setY(entity.getY() - 1);
+                        renderer.promptUpdate();
                     }
                 }
             }
-
-            else
-                entity.setTimeSinceLastMove(entity.getTimeSinceLastMove() + 1);
         }
 
-        if(entityRemoved)
-            entities = temp;
     }
 
     @Override
-    public void miscLogic() {}
+    public void miscLogic() {
+        entitiesToRemove = new ArrayList<>(entities);
+        for (GenericEntity entity : entities) {
+            if (getMap().getTiles()[entity.getY()][entity.getX()].getId() == 0 || entity.getHp() < 1) {
+                entitiesToRemove.remove(entity);
+                entityRemoved = true;
+                renderer.remove(entity);
+                renderer.promptUpdate();
+            }
+        }
+
+        if (entityRemoved)
+            entities = entitiesToRemove;
+    }
 }

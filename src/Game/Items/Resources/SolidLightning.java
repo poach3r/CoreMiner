@@ -5,6 +5,6 @@ import Library.Items.GenericItem;
 
 public class SolidLightning extends GenericItem {
     public SolidLightning() {
-        super("solidLightning", TextureIndex.solidLightning.getAsset(), 10);
+        super(6, "solidLightning", TextureIndex.solidLightning, 10);
     }
 }

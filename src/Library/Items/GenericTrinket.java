@@ -2,6 +2,7 @@ package Library.Items;
 
 import Game.Entities.Player.Player;
 import Game.Items.ItemType;
+import Library.Graphics.Texture;
 
 import java.io.File;
 import java.util.HashMap;
@@ -12,8 +13,8 @@ public class GenericTrinket extends GenericItem {
     private Consumer<Player> pickupEffect;
     private Consumer<Player> continualEffect;
 
-    public GenericTrinket(String name, File asset, int value) {
-        super(name, asset, value, ItemType.TRINKET);
+    public GenericTrinket(int id, String name, Texture texture, int value) {
+        super(id, name, texture, value, ItemType.TRINKET);
         requiredItems = new HashMap<>();
         pickupEffect = null;
         continualEffect = null;

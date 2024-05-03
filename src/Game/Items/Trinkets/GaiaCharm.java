@@ -6,7 +6,7 @@ import Library.Items.GenericTrinket;
 
 public class GaiaCharm extends GenericTrinket {
     public GaiaCharm() {
-        super("Gaia Charm", TextureIndex.gaiaCharm.getAsset(), 20);
+        super(10, "Gaia Charm", TextureIndex.gaiaCharm, 20);
         setPickupEffect(player -> {
             player.setHp(player.getHp() + 1);
         });

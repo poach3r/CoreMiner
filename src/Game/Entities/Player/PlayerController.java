@@ -1,15 +1,14 @@
 package Game.Entities.Player;
 
 import Game.Audio.SoundIndex;
-import Game.Graphics.CraftingUI;
-import Game.Logic.Crafter;
 import Game.Main;
 import Game.Tiles.TileIndex;
 import Library.Audio.AudioPlayer;
-import Library.Entities.GenericEntity;
-import Game.Graphics.Foreground;
+import Library.Entities.GenericEntityController;
+import Library.Graphics.Renderer;
 import Library.Items.GenericItem;
 import Library.Map.Map;
+import Library.Map.Tile;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -17,31 +16,29 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Optional;
 
-/** A heavily modified generic entity controller which handles our keyboard input via the KeyListener interface and then moves the player accordingly.
+/**
+ * A heavily modified generic entity controller which handles our keyboard input via the KeyListener interface and then moves the player accordingly.
+ *
  * @author poacher
  */
-public class PlayerController extends Library.Entities.GenericEntityController implements KeyListener, MouseListener {
+public class PlayerController extends GenericEntityController implements KeyListener, MouseListener {
 
+    private final JFrame frame;
+    private final AudioPlayer audioPlayer;
     /* In order to get smooth movement, we must only move the player when a key is held down and not whenever we receive a keyboard input
      * as keyboards will send repeated inputs while a key is held down therefore, we add all currently pressed keys to this List
      * which is then parsed in move()
      */
     ArrayList<Integer> heldKeys;
-
     private Player player;
-    private Foreground fg;
-    private Crafter crafter;
-    private JFrame frame;
-    private AudioPlayer audioPlayer;
+    private final Renderer renderer;
 
-    public PlayerController(Player player, Foreground fg, Crafter crafter, JFrame frame, AudioPlayer audioPlayer) {
+    public PlayerController(Player player, Renderer renderer, JFrame frame, AudioPlayer audioPlayer) {
         super();
         heldKeys = new ArrayList<>();
         this.player = player;
-        this.fg = fg;
-        this.crafter = crafter;
+        this.renderer = renderer;
         this.frame = frame;
         this.audioPlayer = audioPlayer;
     }
@@ -50,37 +47,31 @@ public class PlayerController extends Library.Entities.GenericEntityController i
         this.player = player;
     }
 
-    public void setFg(Foreground fg) {
-        this.fg = fg;
-    }
-
     // We can ignore this
     @Override
     public void keyTyped(KeyEvent e) {
     }
 
-    /** Handles key presses by adding them to heldKeys as long as the key is not already contained within heldKeys.
+    /**
+     * Handles key presses by adding them to heldKeys as long as the key is not already contained within heldKeys.
+     *
      * @param e the event to be processed
      */
     @Override
     public void keyPressed(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_R) {
+        if (e.getKeyCode() == KeyEvent.VK_R) {
             Main.restart();
-        }
-
-        else if(e.getKeyCode() == KeyEvent.VK_E) {
+        } else if (e.getKeyCode() == KeyEvent.VK_E) {
             Main.toggleCrafting();
-        }
-
-        else if(e.getKeyCode() == KeyEvent.VK_Q) {
+        } else if (e.getKeyCode() == KeyEvent.VK_Q) {
             System.exit(1);
-        }
-
-        else if(!heldKeys.contains(e.getKeyCode()))
+        } else if (!heldKeys.contains(e.getKeyCode()))
             heldKeys.add(e.getKeyCode());
     }
 
-    /** Handles key releases by removing them from heldKeys.
+    /**
+     * Handles key releases by removing them from heldKeys.
+     *
      * @param e the event to be processed
      */
     @Override
@@ -88,74 +79,85 @@ public class PlayerController extends Library.Entities.GenericEntityController i
         heldKeys.remove((Integer) e.getKeyCode());
     }
 
-    /** Handles all keybindings based on the contents of heldKeys.
+    /**
+     * Handles all keybindings based on the contents of heldKeys.
      */
     @Override
     public void move() {
-        player.setTimeSinceLastMine(player.getTimeSinceLastMine() + 1);
+        if (heldKeys.contains(KeyEvent.VK_W))
+            for (int i = 0; i < player.getSpeed(); i++) {
+                if (player.getY() - 1 <= 0)
+                    break;
 
-        // movement keybinds
-        if(player.getTimeSinceLastMove() >= player.getSpeed()) {
-            player.setTimeSinceLastMove(0);
-            if (heldKeys.contains(KeyEvent.VK_W))
-                if (player.getY() > 0)
-                    if (!getMap().getTiles()[player.getY() - 1][player.getX()].hasCollision()) {
-                        player.setY(player.getY() - 1);
-                        //audioPlayer.play(getMap().getTiles()[player.getY() - 1][player.getX()].getStepSound());
-                        fg.promptUpdate();
-                    }
+                if (getMap().getTileAtPos(player.getX(), player.getY() - 1).stream().anyMatch(Tile::hasCollision))
+                    break;
 
-            if (heldKeys.contains(KeyEvent.VK_S))
-                if (player.getY() < 15)
-                    if (!getMap().getTiles()[player.getY() + 1][player.getX()].hasCollision()) {
-                        player.setY(player.getY() + 1);
-                        //audioPlayer.play(getMap().getTiles()[player.getY() + 1][player.getX()].getStepSound());
-                        fg.promptUpdate();
-                    }
+                player.setY(player.getY() - 1);
+                //audioPlayer.play(getMap().getTiles()[player.getY() - 1][player.getX()].getStepSound());
+                renderer.promptUpdate();
+            }
 
-            if (heldKeys.contains(KeyEvent.VK_A))
-                if (player.getX() > 0)
-                    if (!getMap().getTiles()[player.getY()][player.getX() - 1].hasCollision()) {
-                        player.setX(player.getX() - 1);
-                        //audioPlayer.play(getMap().getTiles()[player.getY()][player.getX() - 1].getStepSound());
-                        fg.promptUpdate();
-                    }
+        if (heldKeys.contains(KeyEvent.VK_S))
+            for (int i = 0; i < player.getSpeed(); i++) {
+                if (player.getY() + 1 >= 1024 - player.getTexture().getImage().getHeight())
+                    break;
 
-            if (heldKeys.contains(KeyEvent.VK_D))
-                if (player.getX() < 15)
-                    if (!getMap().getTiles()[player.getY()][player.getX() + 1].hasCollision()) {
-                        player.setX(player.getX() + 1);
-                        //audioPlayer.play(getMap().getTiles()[player.getY()][player.getX() + 1].getStepSound());
-                        fg.promptUpdate();
-                    }
-        }
+                if (getMap().getTileAtPos(player.getX(), player.getY() + 1).stream().anyMatch(Tile::hasCollision))
+                    break;
 
-        else
-            player.setTimeSinceLastMove(player.getTimeSinceLastMove() + 1);
+                player.setY(player.getY() + 1);
+                renderer.promptUpdate();
+            }
+
+        if (heldKeys.contains(KeyEvent.VK_A))
+            for (int i = 0; i < player.getSpeed(); i++) {
+                if (player.getX() + 1 <= 0)
+                    break;
+
+                if (getMap().getTileAtPos(player.getX() - 1, player.getY()).stream().anyMatch(Tile::hasCollision))
+                    break;
+
+
+                player.setX(player.getX() - 1);
+                renderer.promptUpdate();
+            }
+
+        if (heldKeys.contains(KeyEvent.VK_D))
+            for (int i = 0; i < player.getSpeed(); i++) {
+                if (player.getX() + 1 >= 1024 - player.getTexture().getImage().getWidth())
+                    break;
+
+                if (getMap().getTileAtPos(player.getX() + 1, player.getY()).stream().anyMatch(Tile::hasCollision))
+                    break;
+
+                player.setX(player.getX() + 1);
+                renderer.promptUpdate();
+
+            }
     }
 
-    /** Misc player logic such as calculating death and collision.
+    /**
+     * Misc player logic such as calculating death and collision.
      */
     public void miscLogic() {
-        if(getMap().getTiles()[player.getY()][player.getX()].getName().equals("void")) {
-            Game.Main.removeAllEntitiesButPlayer();
-            Game.Main.progress();
-        }
+        player.setTimeSinceLastMine(player.getTimeSinceLastMine() + 1);
+
+        if (getMap().getTileAtPos(player.getX(), player.getY()).stream().anyMatch(e -> e.getId() == 0))
+            Main.progress();
 
         // Entity collision
-        if(player.getTimeSinceHit() == player.getITime()) { // If the player is not invincible
-            Optional<GenericEntity> possibleCollider = fg.getEntityAtTileButAvoidEntity(player.getX(), player.getY(), player);
-            possibleCollider.ifPresent(entity -> { // If the player is colliding with an entity.
-                player.setHp(player.getHp() - entity.getDmg());
+        if (player.getTimeSinceHit() == player.getITime()) { // If the player is not invincible
+            int possibleDamage = renderer.entityIsColliding(player);
+            if (possibleDamage != 0) {
+                player.setHp(player.getHp() - possibleDamage);
                 player.setTimeSinceHit(0);
-            });
-        }
+            }
 
-        else {
+        } else {
             player.setTimeSinceHit(player.getTimeSinceHit() + 1);
         }
 
-        if(player.getHp() <= 0) {
+        if (player.getHp() <= 0) {
             Main.restart();
         }
     }
@@ -166,13 +168,13 @@ public class PlayerController extends Library.Entities.GenericEntityController i
 
     @Override
     public void mousePressed(MouseEvent e) {
-        int x = ((e.getX() - ((frame.getWidth() - fg.getWidth())) / 2) / 64);
-        int y = ((e.getY() - ((frame.getHeight() - fg.getHeight())) / 2) / 64);
+        int x = ((e.getX() - ((frame.getWidth() - 1024)) / 2) / 64);
+        int y = ((e.getY() - ((frame.getHeight() - 1024)) / 2) / 64);
 
-        if(x < 0 || y < 0 || x > 15 || y > 15)
+        if (x < 0 || y < 0 || x > 15 || y > 15)
             return;
 
-        if(player.getX() > x + player.getTool().getRadius() || player.getX() < x - player.getTool().getRadius()) {
+        if (player.getX() / 64 > x + player.getTool().getRadius() || player.getX() / 64 < x - player.getTool().getRadius()) {
             audioPlayer.play(SoundIndex.digFail);
             System.out.println("too far");
             System.out.println(player.getX());
@@ -181,7 +183,7 @@ public class PlayerController extends Library.Entities.GenericEntityController i
             return;
         }
 
-        if(player.getY() > y + player.getTool().getRadius() || player.getY() < y - player.getTool().getRadius()) {
+        if (player.getY() / 64 > y + player.getTool().getRadius() || player.getY() / 64 < y - player.getTool().getRadius()) {
             audioPlayer.play(SoundIndex.digFail);
             System.out.println("too far");
             System.out.println(player.getY());
@@ -190,7 +192,7 @@ public class PlayerController extends Library.Entities.GenericEntityController i
             return;
         }
 
-        if(player.getTimeSinceLastMine() < player.getTool().getSpeed()) {
+        if (player.getTimeSinceLastMine() < player.getTool().getSpeed()) {
             audioPlayer.play(SoundIndex.digFail);
             System.out.println("too fast");
             return;
@@ -198,14 +200,16 @@ public class PlayerController extends Library.Entities.GenericEntityController i
 
         player.setTimeSinceLastMine(0);
 
-        for(GenericItem item : getMap().getTiles()[y][x].getResources())
+        for (GenericItem item : getMap().getTiles()[y][x].getResources())
             player.addItem(item);
 
         Map m = new Map(getMap());
         m.setTile(TileIndex.Void, y, x);
         Main.updateMap(m);
+        System.out.println("mine");
 
         audioPlayer.play(SoundIndex.dig1);
+
     }
 
     @Override

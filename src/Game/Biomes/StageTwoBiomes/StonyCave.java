@@ -5,22 +5,35 @@ import Game.Entities.Hostile.Zombie;
 import Game.Structures.GraniteClump;
 import Game.Structures.Mineshaft;
 import Game.Tiles.*;
-import Library.Map.Tile;
 
-import java.util.HashMap;
 import java.util.Random;
 
 public class StonyCave extends GenericBiome {
     public StonyCave() {
-        setTile(1, TileIndex.stone);
-        setTile(2, TileIndex.stone);
-        setTile(3, TileIndex.stone);
-        setTile(4, TileIndex.andesite);
-        setTile(5, TileIndex.andesite);
-        setTile(6, TileIndex.iron);
-        setTile(7, TileIndex.dirt);
-        setTile(8, TileIndex.dirt);
-        setTile(9, TileIndex.copper);
+        setOreRarity(12);
+        addOre(0, TileIndex.copper, TileIndex.stone);
+        addOre(1, TileIndex.iron, TileIndex.stone);
+        putTile(-10, TileIndex.stone);
+        putTile(-9, TileIndex.stone);
+        putTile(-8, TileIndex.stone);
+        putTile(-7, TileIndex.stone);
+        putTile(-6, TileIndex.stone);
+        putTile(-5, TileIndex.stone);
+        putTile(-4, TileIndex.stone);
+        putTile(-3, TileIndex.stone);
+        putTile(-2, TileIndex.dirt);
+        putTile(-1, TileIndex.dirt);
+        putTile(0, TileIndex.stone);
+        putTile(1, TileIndex.stone);
+        putTile(2, TileIndex.stone);
+        putTile(3, TileIndex.stone);
+        putTile(4, TileIndex.andesite);
+        putTile(5, TileIndex.andesite);
+        putTile(6, TileIndex.andesite);
+        putTile(7, TileIndex.andesite);
+        putTile(8, TileIndex.andesite);
+        putTile(9, TileIndex.andesite);
+        putTile(10, TileIndex.andesite);
 
         setExtraGeneration(new Runnable() {
             @Override
@@ -30,13 +43,14 @@ public class StonyCave extends GenericBiome {
                     placeStructure(new GraniteClump(), r.nextInt(16), r.nextInt(16));
 
                 if(r.nextInt(10) == 1) {
-                    placeStructure(new Mineshaft(), r.nextInt(16), r.nextInt(16));
-                    Game.Main.summonEntity(new Zombie(r.nextInt(16), r.nextInt(16)), 2);
+                    placeStructure(new Mineshaft(), r.nextInt(960), r.nextInt(960));
+                    Game.Main.summonEntity(new Zombie(r.nextInt(960), r.nextInt(960)), 2);
                 }
 
                 if(r.nextBoolean())
-                    Game.Main.summonEntity(new Zombie(r.nextInt(16), r.nextInt(16)), 2);
+                    Game.Main.summonEntity(new Zombie(r.nextInt(960), r.nextInt(960)), 2);
             }
         });
     }
 }
+

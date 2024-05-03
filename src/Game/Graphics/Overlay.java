@@ -1,7 +1,6 @@
 package Game.Graphics;
 
 import Game.Entities.Player.Player;
-import Library.Graphics.SquarePanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -37,29 +36,37 @@ public class Overlay extends JPanel {
         setVisible(true);
     }
 
+    /**
+     * Reloads the hud when necessary
+     */
     public void reload() {
-        displayHp();
-        displayTool();
-        revalidate();
-        repaint();
+        if(hpDisplayed()) {
+            toolDisplayed();
+            revalidate();
+            repaint();
+        } else if(toolDisplayed()) {
+            revalidate();
+            repaint();
+        }
     }
 
-    public void displayTool() {
+    public boolean toolDisplayed() {
         if(tool.getName().equals(player.getTool().getName()))
-            return;
+            return false;
 
         try {
-            tool.setIcon(new ImageIcon(ImageIO.read(player.getTool().getAsset())));
+            tool.setIcon(new ImageIcon(ImageIO.read(player.getTool().getTexture().getFile())));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         tool.setName(player.getTool().getName());
+        return true;
     }
 
-    public void displayHp() {
+    public boolean hpDisplayed() {
         if(player.getHp() == hp.getComponentCount())
-            return;
+            return false;
 
         hp.removeAll();
 
@@ -70,6 +77,8 @@ public class Overlay extends JPanel {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        return true;
     }
 
     public void setPlayer(Player player) {
