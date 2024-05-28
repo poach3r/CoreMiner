@@ -1,10 +1,10 @@
-package Library.Items;
+package Game.Items.Trinkets;
 
 import Game.Entities.Player.Player;
+import Game.Items.GenericItem;
 import Game.Items.ItemType;
 import Library.Graphics.Texture;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.function.Consumer;
 

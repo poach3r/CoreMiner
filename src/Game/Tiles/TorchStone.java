@@ -4,9 +4,9 @@ import Game.Audio.SoundIndex;
 import Game.Graphics.TextureIndex;
 import Game.Items.ItemIndex;
 
-public class Andesite extends Library.Map.Tile {
-    public Andesite() {
-        super(7, "andesite", TextureIndex.andesite, false, SoundIndex.stoneStep);
+public class TorchStone extends Library.Map.Tile {
+    public TorchStone() {
+        super(6, "stone", TextureIndex.torchStone, false, SoundIndex.stoneStep, 12);
         addResource(ItemIndex.stone, 1);
     }
 }

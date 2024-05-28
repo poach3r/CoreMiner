@@ -34,7 +34,7 @@ public class Plains extends GenericBiome {
             @Override
             public void run() {
                 Random r = new Random();
-                Game.Main.summonEntity(new Sheep(r.nextInt(960), r.nextInt(960)), 1);
+                addEntity(new Sheep(r.nextInt(960), r.nextInt(960)));
             }
         });
     }

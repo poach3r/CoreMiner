@@ -2,83 +2,30 @@ package Game.Graphics;
 
 import Game.Entities.Player.Player;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.util.function.BiConsumer;
 
-/** This is a simple JPanel which displays information about the game such as our inventory, hp, and tools.
- *
- */
-public class Overlay extends JPanel {
-    private JPanel hp;
-    private JLabel tool;
+public class Overlay {
     private Player player;
+    private int prevHp;
 
     public Overlay(Player player) {
         this.player = player;
-        hp = new JPanel();
-        hp.setOpaque(false);
-        tool = new JLabel();
-        tool.setName("");
-
-        setLayout(new BorderLayout());
-        setOpaque(false);
-
-        JPanel p = new JPanel();
-        p.setOpaque(false);
-
-        p.add(hp);
-        p.add(tool);
-        add(p, BorderLayout.NORTH);
-
-        setVisible(true);
+        this.prevHp = 0;
     }
 
-    /**
-     * Reloads the hud when necessary
-     */
-    public void reload() {
-        if(hpDisplayed()) {
-            toolDisplayed();
-            revalidate();
-            repaint();
-        } else if(toolDisplayed()) {
-            revalidate();
-            repaint();
-        }
-    }
+    public BiConsumer<Graphics2D, JPanel> getRenderingCode() {
+        return (g, j) -> {
 
-    public boolean toolDisplayed() {
-        if(tool.getName().equals(player.getTool().getName()))
-            return false;
-
-        try {
-            tool.setIcon(new ImageIcon(ImageIO.read(player.getTool().getTexture().getFile())));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        tool.setName(player.getTool().getName());
-        return true;
-    }
-
-    public boolean hpDisplayed() {
-        if(player.getHp() == hp.getComponentCount())
-            return false;
-
-        hp.removeAll();
-
-        try {
-            for(int i = 0; i < player.getHp(); i++) {
-                hp.add(new JLabel(new ImageIcon(ImageIO.read(new File("assets/images/heart.png")))));
+            // draw hp
+            for(int n = 0; n < player.getHp(); n++) {
+                g.drawImage(TextureIndex.heart.getImage(), 16 + (n * 44), 16, j);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-        return true;
+            // draw tool
+            g.drawImage(player.getActiveTool().getTexture().getImage(), 1024 - player.getActiveTool().getTexture().getImage().getWidth() - 16, 16, j);
+        };
     }
 
     public void setPlayer(Player player) {

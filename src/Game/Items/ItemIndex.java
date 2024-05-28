@@ -1,14 +1,12 @@
 package Game.Items;
 
 import Game.Items.Resources.*;
-import Game.Items.Tools.CopperDrill;
-import Game.Items.Tools.IronDrill;
-import Game.Items.Tools.StonePickaxe;
+import Game.Items.Tools.EmeraldWand;
+import Game.Items.Tools.RubyWand;
 import Game.Items.Trinkets.GaiaCharm;
 import Game.Items.Trinkets.HermesBoots;
-import Library.Items.GenericItem;
-import Library.Items.GenericTool;
-import Library.Items.GenericTrinket;
+import Game.Items.Tools.GenericTool;
+import Game.Items.Trinkets.GenericTrinket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,18 +29,14 @@ public class ItemIndex {
         add(solidLightning);
     }};
 
-    public static StonePickaxe stonePickaxe = new StonePickaxe();
-    public static CopperDrill copperDrill = new CopperDrill();
-    public static IronDrill ironDrill = new IronDrill();
+    public static GenericTool rubyWand = new RubyWand();
+    public static GenericTool emeraldWand = new EmeraldWand();
     public static List<GenericTool> tools = new ArrayList<>() {{
-       add(stonePickaxe);
-       add(copperDrill);
-       add(ironDrill);
+        add(rubyWand);
+        add(emeraldWand);
     }};
 
     public static List<GenericTool> craftableTools = new ArrayList<>() {{
-        add(copperDrill);
-        add(ironDrill);
     }};
 
     public static GaiaCharm gaiaCharm = new GaiaCharm();

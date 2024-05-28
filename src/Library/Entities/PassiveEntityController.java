@@ -1,10 +1,10 @@
 package Library.Entities;
 
 import Library.Graphics.Renderer;
-import Library.Map.Tile;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.function.Consumer;
 
 /**
  * Default controller for passive entities
@@ -12,89 +12,101 @@ import java.util.Random;
  * @author poacher
  */
 public class PassiveEntityController extends GenericEntityController {
-    private final Random movementRandomizer;
     private final Renderer renderer;
     private boolean entityRemoved;
-    private ArrayList<GenericEntity> entitiesToRemove;
+    private Consumer<GenericEntity> onDeath;
+    private final Random rand;
 
-    public PassiveEntityController(Renderer fg) {
+    // if we dont store the removed entities in a separate list and simply remove them from the main entities list we get a comodification error
+    private ArrayList<GenericEntity> entitiesToKeep;
+
+    public PassiveEntityController(Renderer renderer) {
         super();
-        movementRandomizer = new Random();
-        this.renderer = fg;
+        this.renderer = renderer;
         entityRemoved = false;
-        entitiesToRemove = null;
+        entitiesToKeep = null;
+        onDeath = null;
+        rand = new Random();
+    }
+
+    public void setOnDeathAction(Consumer<GenericEntity> onDeathAction) {
+        onDeath = onDeathAction;
     }
 
     @Override
     public void move() {
         for (GenericEntity entity : this.getEntities()) {
-            switch (movementRandomizer.nextInt(4)) {
-                case 0 -> {
+            if (rand.nextBoolean() && rand.nextBoolean()) {
+                int r = rand.nextInt(4);
+                if (r == 0) {
                     for (int i = 0; i < entity.getSpeed(); i++) {
-                        if (entity.getX() >= 1024 - entity.getTexture().getImage().getWidth() - 1)
-                            break;
-
-                        if (getMap().getTileAtPos(entity.getX() + 1, entity.getY()).stream().anyMatch(Tile::hasCollision))
+                        if (entity.getX() >= 1024 - entity.getTexture().getImage().getWidth())
                             break;
 
                         entity.setX(entity.getX() + 1);
-                        renderer.promptUpdate();
-                    }
-                }
-                case 1 -> {
-                    for (int i = 0; i < entity.getSpeed(); i++) {
-                        if (entity.getX() <= 0)
+                        if (getMap().entityCollidesWithTerrain(entity)) {
+                            entity.setX(entity.getX() - 1);
                             break;
-
-                        if (getMap().getTileAtPos(entity.getX() - 1, entity.getY()).stream().anyMatch(Tile::hasCollision))
+                        }
+                    }
+                } else if (r == 1) {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getX() - 1 <= 0)
                             break;
 
                         entity.setX(entity.getX() - 1);
-                        renderer.promptUpdate();
-                    }
-                }
-                case 2 -> {
-                    for (int i = 0; i < entity.getSpeed(); i++) {
-                        if (entity.getY() >= 1024 - entity.getTexture().getImage().getWidth() - 1)
+                        if (getMap().entityCollidesWithTerrain(entity)) {
+                            entity.setX(entity.getX() + 1);
                             break;
-
-                        if (getMap().getTileAtPos(entity.getX() , entity.getY() + 1).stream().anyMatch(Tile::hasCollision))
+                        }
+                    }
+                } else if (r == 2) {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getY() + 1 >= 1024 - entity.getTexture().getImage().getWidth() - 1)
                             break;
 
                         entity.setY(entity.getY() + 1);
-                        renderer.promptUpdate();
-                    }
-                }
-                case 3 -> {
-                    for (int i = 0; i < entity.getSpeed(); i++) {
-                        if (entity.getY() <= 0)
+                        if (getMap().entityCollidesWithTerrain(entity)) {
+                            entity.setY(entity.getY() - 1);
                             break;
-
-                        if (getMap().getTileAtPos(entity.getX(), entity.getY() - 1).stream().anyMatch(Tile::hasCollision))
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < entity.getSpeed(); i++) {
+                        if (entity.getY() - 1 <= 0)
                             break;
 
                         entity.setY(entity.getY() - 1);
-                        renderer.promptUpdate();
+                        if (getMap().entityCollidesWithTerrain(entity)) {
+                            entity.setY(entity.getY() + 1);
+                            break;
+                        }
                     }
                 }
             }
-        }
 
+            renderer.promptFgUpdate();
+        }
     }
 
     @Override
     public void miscLogic() {
-        entitiesToRemove = new ArrayList<>(entities);
+        entitiesToKeep = new ArrayList<>(entities);
         for (GenericEntity entity : entities) {
-            if (getMap().getTiles()[entity.getY()][entity.getX()].getId() == 0 || entity.getHp() < 1) {
-                entitiesToRemove.remove(entity);
-                entityRemoved = true;
-                renderer.remove(entity);
-                renderer.promptUpdate();
+            if (entity.getHp() <= 0) {
+                if (onDeath != null) {
+                    entityRemoved = true;
+                    entitiesToKeep.remove(entity);
+                    onDeath.accept(entity);
+                }
             }
+
+            if (entity.getTimeSinceHit() < entity.getITime())
+                entity.setTimeSinceHit(entity.getTimeSinceHit() + 1);
         }
 
-        if (entityRemoved)
-            entities = entitiesToRemove;
+        if (entityRemoved) {
+            entities = new ArrayList<>(entitiesToKeep);
+        }
     }
 }

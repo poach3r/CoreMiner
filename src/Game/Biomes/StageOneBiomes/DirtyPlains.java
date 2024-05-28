@@ -35,7 +35,7 @@ public class DirtyPlains extends GenericBiome {
             public void run() {
                 Random r = new Random();
                 if(r.nextInt(4) == 1) {
-                    Game.Main.summonEntity(new Sheep(r.nextInt(960), r.nextInt(960)), 1);
+                    addEntity(new Sheep(r.nextInt(960), r.nextInt(960)));
                 }
             }
         });

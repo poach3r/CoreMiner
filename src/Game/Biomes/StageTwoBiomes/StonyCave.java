@@ -39,16 +39,29 @@ public class StonyCave extends GenericBiome {
             @Override
             public void run() {
                 Random r = new Random();
+
                 if(r.nextInt(10) == 1)
                     placeStructure(new GraniteClump(), r.nextInt(16), r.nextInt(16));
 
                 if(r.nextInt(10) == 1) {
                     placeStructure(new Mineshaft(), r.nextInt(960), r.nextInt(960));
-                    Game.Main.summonEntity(new Zombie(r.nextInt(960), r.nextInt(960)), 2);
+                    addEntity(new Zombie(r.nextInt(960), r.nextInt(960)));
                 }
 
                 if(r.nextBoolean())
-                    Game.Main.summonEntity(new Zombie(r.nextInt(960), r.nextInt(960)), 2);
+                    addEntity(new Zombie(r.nextInt(960), r.nextInt(960)));
+
+                boolean torchPlaced = false;
+                if(r.nextBoolean()) {
+                    while(!torchPlaced) {
+                        int x = r.nextInt(15);
+                        int y = r.nextInt(15);
+                        if(getTiles()[x][y].getId() == 6) {
+                            setTile(TileIndex.torchStone, x, y);
+                            torchPlaced = true;
+                        }
+                    }
+                }
             }
         });
     }

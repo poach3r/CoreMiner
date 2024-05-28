@@ -1,11 +1,10 @@
 package Library.Entities;
 
 import Library.Graphics.Texture;
-import Library.Items.GenericItem;
 
+import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.HashMap;
+import java.util.function.BiConsumer;
 
 /** Generic entity template
  * @author poacher
@@ -18,11 +17,16 @@ public class GenericEntity {
     private Texture texture;
     private String name;
     private int speed;
-    private HashMap<GenericItem, Integer> inventory;
     private final int id;
     private Rectangle hitbox;
 
-    public GenericEntity(int id, String name, Texture texture, int x, int y, int hp, int dmg, int speed) {
+    // time before the entity can be hit again, this helps prevents unfair damage
+    // https://www.giantbomb.com/invincibility-frames/3015-9598/
+    private int iTime;
+    private int timeSinceHit;
+    private int hostility;
+
+    public GenericEntity(int id, String name, Texture texture, int x, int y, int hp, int dmg, int speed, int hostility, int iTime) {
         this.id = id;
         this.name = name;
         this.texture = texture;
@@ -31,8 +35,10 @@ public class GenericEntity {
         this.hp = hp;
         this.dmg = dmg;
         this.speed = speed;
-        inventory = new HashMap<>();
-        hitbox = new Rectangle(x, y, texture.getImage().getWidth(), texture.getImage().getHeight());
+        hitbox = new Rectangle(x, y, texture.getImage().getWidth() - 1, texture.getImage().getHeight() - 1);
+        this.iTime = iTime;
+        timeSinceHit = 10;
+        this.hostility = hostility;
     }
 
     public Rectangle getHitbox() {
@@ -53,7 +59,7 @@ public class GenericEntity {
     }
 
     public int getX() {
-        return x;
+        return x ;
     }
 
     public void setY(int y) {
@@ -105,33 +111,33 @@ public class GenericEntity {
         this.speed = speed;
     }
 
-    public void addItem(GenericItem item) {
-        if(inventory.containsKey(item))
-            inventory.replace(item, inventory.get(item) + 1);
-
-        else
-            inventory.put(item, 1);
+    public int getITime() {
+        return iTime;
     }
 
-    public void removeItem(GenericItem item, Integer value) {
-        if(inventory.containsKey(item)) {
-            if(inventory.get(item) <= value)
-                inventory.remove(item);
-            else
-                inventory.replace(item, inventory.get(item) - value);
-        }
+    public void setITime(int iTime) {
+        this.iTime = iTime;
     }
 
-    public void removeItem(GenericItem item) {
-        if(inventory.containsKey(item)) {
-            if(inventory.get(item) <= 1)
-                inventory.remove(item);
-            else
-                inventory.replace(item, inventory.get(item) - 1);
-        }
+    public int getTimeSinceHit() {
+        return timeSinceHit;
     }
 
-    public HashMap<GenericItem, Integer> getInventory() {
-        return inventory;
+    public void setTimeSinceHit(int timeSinceHit) {
+        this.timeSinceHit = timeSinceHit;
     }
+
+    public int getHostility() {
+        return hostility;
+    }
+
+    public void setHostility(int hostility) {
+        this.hostility = hostility;
+    }
+
+    public final BiConsumer<Graphics2D, JPanel> getRenderingCode() {
+        return this::rendering;
+    }
+
+    public void rendering(Graphics2D g, JPanel j) {};
 }

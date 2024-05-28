@@ -6,7 +6,7 @@ import Game.Items.ItemIndex;
 
 public class Copper extends Library.Map.Tile {
     public Copper() {
-        super(9, "copper", TextureIndex.copper, false, false, SoundIndex.stoneStep);
+        super(9, "copper", TextureIndex.copper, false, SoundIndex.stoneStep);
         addResource(ItemIndex.copper, 1);
     }
 }

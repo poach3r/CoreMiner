@@ -2,20 +2,22 @@ package Game.Entities.Player;
 
 import Game.Audio.SoundIndex;
 import Game.Main;
-import Game.Tiles.TileIndex;
 import Library.Audio.AudioPlayer;
+import Library.Entities.GenericEntity;
 import Library.Entities.GenericEntityController;
 import Library.Graphics.Renderer;
-import Library.Items.GenericItem;
-import Library.Map.Map;
-import Library.Map.Tile;
+import Library.Map.World;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * A heavily modified generic entity controller which handles our keyboard input via the KeyListener interface and then moves the player accordingly.
@@ -33,14 +35,18 @@ public class PlayerController extends GenericEntityController implements KeyList
     ArrayList<Integer> heldKeys;
     private Player player;
     private final Renderer renderer;
+    private World world;
+    private boolean toolShown;
 
-    public PlayerController(Player player, Renderer renderer, JFrame frame, AudioPlayer audioPlayer) {
+    public PlayerController(Player player, Renderer renderer, JFrame frame, AudioPlayer audioPlayer, World world) {
         super();
         heldKeys = new ArrayList<>();
         this.player = player;
         this.renderer = renderer;
         this.frame = frame;
         this.audioPlayer = audioPlayer;
+        this.world = world;
+        toolShown = false;
     }
 
     public void setPlayer(Player player) {
@@ -61,8 +67,10 @@ public class PlayerController extends GenericEntityController implements KeyList
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_R) {
             Main.restart();
-        } else if (e.getKeyCode() == KeyEvent.VK_E) {
-            Main.toggleCrafting();
+        } else if(e.getKeyCode() == KeyEvent.VK_E) {
+            player.iterateTool();
+            renderer.promptFgUpdate();
+            renderer.promptCustomUpdate();
         } else if (e.getKeyCode() == KeyEvent.VK_Q) {
             System.exit(1);
         } else if (!heldKeys.contains(e.getKeyCode()))
@@ -86,53 +94,103 @@ public class PlayerController extends GenericEntityController implements KeyList
     public void move() {
         if (heldKeys.contains(KeyEvent.VK_W))
             for (int i = 0; i < player.getSpeed(); i++) {
-                if (player.getY() - 1 <= 0)
-                    break;
+                player.setY(player.getY() - 2);
 
-                if (getMap().getTileAtPos(player.getX(), player.getY() - 1).stream().anyMatch(Tile::hasCollision))
-                    break;
+                if (player.getY() < 0) {
+                    if(world.getCurrentMapIndex()[1] < 1) {
+                        player.setY(player.getY() + 2);
+                        break;
+                    }
 
-                player.setY(player.getY() - 1);
-                //audioPlayer.play(getMap().getTiles()[player.getY() - 1][player.getX()].getStepSound());
-                renderer.promptUpdate();
+                    player.setY(1024);
+                    Main.removeAllEntitiesButPlayer();
+                    world.setCurrentMap(world.getCurrentMapIndex()[0], world.getCurrentMapIndex()[1] - 1);
+                    Main.loadNewMap();
+                }
+
+                if (world.getCurrentMap().entityCollidesWithTerrain(player)) {
+                    player.setY(player.getY() + 2);
+                    break;
+                }
+
+                //audioPlayer.play(world.getCurrentMap().getTiles()[player.getY() - 1][player.getX()].getStepSound());
+                renderer.promptFgUpdate();
             }
 
         if (heldKeys.contains(KeyEvent.VK_S))
             for (int i = 0; i < player.getSpeed(); i++) {
-                if (player.getY() + 1 >= 1024 - player.getTexture().getImage().getHeight())
-                    break;
+                player.setY(player.getY() + 2);
 
-                if (getMap().getTileAtPos(player.getX(), player.getY() + 1).stream().anyMatch(Tile::hasCollision))
-                    break;
+                if (player.getY() > 1024 - player.getTexture().getImage().getHeight()) {
+                    if(world.getCurrentMapIndex()[1] > 1) {
+                        player.setY(player.getY() - 2);
+                        break;
+                    }
 
-                player.setY(player.getY() + 1);
-                renderer.promptUpdate();
+                    player.setY(0);
+                    Main.removeAllEntitiesButPlayer();
+                    world.setCurrentMap(world.getCurrentMapIndex()[0], world.getCurrentMapIndex()[1] + 1);
+                    Main.loadNewMap();
+                }
+
+                if (world.getCurrentMap().entityCollidesWithTerrain(player)) {
+                    player.setY(player.getY() - 2);
+                    break;
+                }
+
+                renderer.promptFgUpdate();
             }
 
         if (heldKeys.contains(KeyEvent.VK_A))
             for (int i = 0; i < player.getSpeed(); i++) {
-                if (player.getX() + 1 <= 0)
+                player.setX(player.getX() - 2);
+
+                if (player.getX() < 0) {
+                    if(world.getCurrentMapIndex()[0] < 1) {
+                        player.setX(player.getX() + 2);
+                        break;
+                    }
+
+                    player.setX(1024);
+                    Main.removeAllEntitiesButPlayer();
+                    world.setCurrentMap(world.getCurrentMapIndex()[0] - 1, world.getCurrentMapIndex()[1]);
+                    Main.loadNewMap();
+                    return;
+                }
+
+                if (world.getCurrentMap().entityCollidesWithTerrain(player)) {
+                    player.setX(player.getX() + 2);
                     break;
+                }
 
-                if (getMap().getTileAtPos(player.getX() - 1, player.getY()).stream().anyMatch(Tile::hasCollision))
-                    break;
-
-
-                player.setX(player.getX() - 1);
-                renderer.promptUpdate();
+                renderer.promptFgUpdate();
             }
 
         if (heldKeys.contains(KeyEvent.VK_D))
             for (int i = 0; i < player.getSpeed(); i++) {
-                if (player.getX() + 1 >= 1024 - player.getTexture().getImage().getWidth())
+                player.setX(player.getX() + 2);
+
+                if (player.getX() > 1024 - player.getTexture().getImage().getWidth()) {
+                    if(world.getCurrentMapIndex()[0] > 1) {
+                        player.setX(player.getX() - 2);
+                        break;
+                    }
+
+                    System.out.println(world.getCurrentMapIndex()[0]);
+
+                    player.setX(0);
+                    Main.removeAllEntitiesButPlayer();
+                    world.setCurrentMap(world.getCurrentMapIndex()[0] + 1, world.getCurrentMapIndex()[1]);
+                    Main.loadNewMap();
+                    return;
+                }
+
+                if (world.getCurrentMap().entityCollidesWithTerrain(player)) {
+                    player.setX(player.getX() - 2);
                     break;
+                }
 
-                if (getMap().getTileAtPos(player.getX() + 1, player.getY()).stream().anyMatch(Tile::hasCollision))
-                    break;
-
-                player.setX(player.getX() + 1);
-                renderer.promptUpdate();
-
+                renderer.promptFgUpdate();
             }
     }
 
@@ -140,76 +198,82 @@ public class PlayerController extends GenericEntityController implements KeyList
      * Misc player logic such as calculating death and collision.
      */
     public void miscLogic() {
-        player.setTimeSinceLastMine(player.getTimeSinceLastMine() + 1);
-
-        if (getMap().getTileAtPos(player.getX(), player.getY()).stream().anyMatch(e -> e.getId() == 0))
-            Main.progress();
+        player.setTimeSinceLastToolUse(player.getTimeSinceLastToolUse() + 1);
 
         // Entity collision
         if (player.getTimeSinceHit() == player.getITime()) { // If the player is not invincible
-            int possibleDamage = renderer.entityIsColliding(player);
-            if (possibleDamage != 0) {
-                player.setHp(player.getHp() - possibleDamage);
+            Optional<List<GenericEntity>> possibleCollidingEntity = world.getCurrentMap().getEntitiesCollidingWithOtherEntity(player);
+
+            // took damage
+            possibleCollidingEntity.ifPresent(e -> {
+                player.setHp(player.getHp() - e.get(0).getDmg());
                 player.setTimeSinceHit(0);
-            }
+                renderer.promptCustomUpdate();
+            });
 
         } else {
             player.setTimeSinceHit(player.getTimeSinceHit() + 1);
         }
 
+        // kill the player
         if (player.getHp() <= 0) {
             Main.restart();
         }
-    }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
+        // execute the code for the tile the player is at
+        getMap().getTilesAtEntity(player).forEach(e -> e.getOnStepCode().accept(player));
+
+        // if tool usage is over
+        if(toolShown && player.getActiveTool().getUseTime() <= player.getTimeSinceLastToolUse()) {
+            toolShown = false;
+            renderer.promptCustomUpdate();
+        }
+
+        // if tool usage is not over, continue rendering it so it keeps up with the player
+        else if(toolShown) {
+            player.getActiveTool().logic(player, this, renderer);
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        int x = ((e.getX() - ((frame.getWidth() - 1024)) / 2) / 64);
-        int y = ((e.getY() - ((frame.getHeight() - 1024)) / 2) / 64);
+        player.setMouseX(e.getX() - ((frame.getWidth() - 1024)) / 2);
+        player.setMouseY(e.getY() - ((frame.getHeight() - 1024)) / 2);
 
-        if (x < 0 || y < 0 || x > 15 || y > 15)
-            return;
-
-        if (player.getX() / 64 > x + player.getTool().getRadius() || player.getX() / 64 < x - player.getTool().getRadius()) {
+        if(!new Rectangle(
+                player.getX() - (player.getActiveTool().getRadius() / 2),
+                player.getY() - (player.getActiveTool().getRadius() / 2),
+                player.getActiveTool().getRadius() + player.getTexture().getImage().getWidth(),
+                player.getActiveTool().getRadius() + player.getTexture().getImage().getHeight()
+        ).contains(player.getMouseX(), player.getMouseY())) {
             audioPlayer.play(SoundIndex.digFail);
-            System.out.println("too far");
-            System.out.println(player.getX());
-            System.out.println(x + player.getTool().getRadius());
-            System.out.println(x - player.getTool().getRadius());
             return;
         }
 
-        if (player.getY() / 64 > y + player.getTool().getRadius() || player.getY() / 64 < y - player.getTool().getRadius()) {
-            audioPlayer.play(SoundIndex.digFail);
-            System.out.println("too far");
-            System.out.println(player.getY());
-            System.out.println(y + player.getTool().getRadius());
-            System.out.println(y - player.getTool().getRadius());
-            return;
-        }
-
-        if (player.getTimeSinceLastMine() < player.getTool().getSpeed()) {
+        if(player.getTimeSinceLastToolUse() < player.getActiveTool().getSpeed()) {
             audioPlayer.play(SoundIndex.digFail);
             System.out.println("too fast");
             return;
         }
 
-        player.setTimeSinceLastMine(0);
+        player.setTimeSinceLastToolUse(0);
 
-        for (GenericItem item : getMap().getTiles()[y][x].getResources())
-            player.addItem(item);
+        toolShown = true;
+        renderer.promptCustomUpdate();
+    }
 
-        Map m = new Map(getMap());
-        m.setTile(TileIndex.Void, y, x);
-        Main.updateMap(m);
-        System.out.println("mine");
+    public BiConsumer<Graphics2D, JPanel> getToolRenderingCode() {
+        return (g, j) -> {
+            if(!toolShown) {
+                return;
+            }
 
-        audioPlayer.play(SoundIndex.dig1);
+            player.getActiveTool().renderering(player, g, j);
+        };
+    }
 
+    @Override
+    public void mouseClicked(MouseEvent e) {
     }
 
     @Override

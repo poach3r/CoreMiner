@@ -1,15 +1,15 @@
 # Tools
-Stone Pickaxe:
-- 60 Speed
-- 2 Radius
+Ruby Wand:
+- Creates a "firestorm"
+- 1 damage
+- 10 useTime
+- 20 speed
 
-Copper Drill:
-- 55 Speed
-- 6 Radius
-
-Iron Drill:
-- 45 Speed
-- 2 Radius
+Emerald Wand:
+- Creates a log
+- 0 damage
+- 2 useTime
+- 40 speed
 
 # Trinkets
 Gaia Charm:

@@ -40,14 +40,14 @@ public class CopperRichCave extends GenericBiome {
 
                 if(r.nextInt(20) == 1) {
                     placeStructure(new Mineshaft(), r.nextInt(16), r.nextInt(16));
-                    Game.Main.summonEntity(new Zombie(r.nextInt(16) * 64, r.nextInt(16) * 64), 2);
+                    addEntity(new Zombie(r.nextInt(16) * 64, r.nextInt(16) * 64));
                 }
 
                 if(r.nextBoolean())
-                    Game.Main.summonEntity(new Zombie(r.nextInt(16) * 64, r.nextInt(16) * 64), 2);
+                    addEntity(new Zombie(r.nextInt(16) * 64, r.nextInt(16) * 64));
 
                 if(r.nextBoolean())
-                    Game.Main.summonEntity(new Zombie(r.nextInt(16) * 64, r.nextInt(16) * 64), 2);
+                    addEntity(new Zombie(r.nextInt(16) * 64, r.nextInt(16) * 64));
             }
         });
     }

@@ -6,7 +6,7 @@ import Game.Items.ItemIndex;
 
 public class SolidLightning extends Library.Map.Tile {
     public SolidLightning() {
-        super(14, "solidLightning", TextureIndex.solidLightning, false, false, SoundIndex.stoneStep);
+        super(14, "solidLightning", TextureIndex.solidLightning, false, SoundIndex.stoneStep, 18);
         addResource(ItemIndex.solidLightning, 1);
     }
 }

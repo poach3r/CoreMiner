@@ -40,11 +40,11 @@ public class GraniteCave extends GenericBiome {
 
                 if(r.nextInt(10) == 1) {
                     placeStructure(new Mineshaft(), r.nextInt(16), r.nextInt(16));
-                    Game.Main.summonEntity(new Zombie(r.nextInt(960), r.nextInt(960)), 2);
+                    addEntity(new Zombie(r.nextInt(960), r.nextInt(960)));
                 }
 
                 if(r.nextBoolean())
-                    Game.Main.summonEntity(new Zombie(r.nextInt(960), r.nextInt(960)), 2);
+                    addEntity(new Zombie(r.nextInt(960), r.nextInt(960)));
             }
         });
     }

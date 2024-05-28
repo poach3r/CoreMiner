@@ -1,10 +1,12 @@
 package Library.Map;
 
 import Library.Audio.Sound;
+import Library.Entities.GenericEntity;
 import Library.Graphics.Texture;
-import Library.Items.GenericItem;
+import Game.Items.GenericItem;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * Standard tiles which make up the majority of maps.
@@ -15,18 +17,28 @@ public class Tile {
     private final String name;
     private final Texture texture;
     private final boolean collision;
-    private final boolean growing;
     private final ArrayList<GenericItem> resources;
     private final Sound stepSound;
     private final int id;
+    private final int lightLevel;
 
-    public Tile(int id, String name, Texture texture, boolean collision, boolean growing, Sound stepSound) {
+    public Tile(int id, String name, Texture texture, boolean collision, Sound stepSound, int lightLevel) {
         this.id = id;
         this.name = name;
         this.texture = texture;
         this.collision = collision;
-        this.growing = growing;
         this.stepSound = stepSound;
+        this.lightLevel = lightLevel;
+        resources = new ArrayList<>();
+    }
+
+    public Tile(int id, String name, Texture texture, boolean collision, Sound stepSound) {
+        this.id = id;
+        this.name = name;
+        this.texture = texture;
+        this.collision = collision;
+        this.stepSound = stepSound;
+        this.lightLevel = 0;
         resources = new ArrayList<>();
     }
 
@@ -35,9 +47,13 @@ public class Tile {
         this.name = tile.getName();
         this.texture = tile.getTexture();
         this.collision = tile.hasCollision();
-        this.growing = tile.grows();
         this.resources = tile.getResources();
         this.stepSound = tile.getStepSound();
+        lightLevel = tile.getLightLevel();
+    }
+
+    public int getLightLevel() {
+        return  lightLevel;
     }
 
     public int getId() {
@@ -50,10 +66,6 @@ public class Tile {
 
     public boolean hasCollision() {
         return collision;
-    }
-
-    public boolean grows() {
-        return growing;
     }
 
     public void addResource(GenericItem item, int count) {
@@ -73,4 +85,13 @@ public class Tile {
     public Sound getStepSound() {
         return stepSound;
     }
+
+    public Consumer<GenericEntity> getOnStepCode() {
+        return this::onStep;
+    }
+
+    /**
+     * Code to be activated when an entity steps on the tile
+     */
+    public void onStep(GenericEntity entity) {};
 }

@@ -8,7 +8,7 @@ import java.io.IOException;
 /** The Texture class represents texture files that are to be used in the game for graphics.
  * @author poacher
  */
-public final class Texture {
+public class Texture {
     private final File file;
     private final String name;
     private final BufferedImage image;

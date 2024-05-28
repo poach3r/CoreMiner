@@ -22,15 +22,17 @@ public class TextureIndex {
     public static Texture thunderStone = new Texture(new File("assets/images/thunderStone.png"), "thunderStone");
     public static Texture solidLightning = new Texture(new File("assets/images/solidLightning.png"), "solidLightning");
     public static Texture drainedThunderStone = new Texture(new File("assets/images/drainedThunderStone.png"), "drainedThunderStone");
+    public static Texture torchStone = new Texture(new File("assets/images/torchStone.png"), "torchStone");
     public static Texture Void = new Texture(new File("assets/images/void.png"), "void");
     public static Texture player = new Texture(new File("assets/images/sheep.png"), "player");
     public static Texture sheep = new Texture(new File("assets/images/sheep.png"), "sheep");
     public static Texture zombie = new Texture(new File("assets/images/zombie.png"), "zombie");
     public static Texture mushyZombie = new Texture(new File("assets/images/mushyZombie.png"), "mushyZombie");
 
-    public static Texture stonePickaxe = new Texture(new File("assets/images/stonePickaxe.png"), "stonePickaxe");
-    public static Texture copperDrill = new Texture(new File("assets/images/copperDrill.png"), "copperDrill");
-    public static Texture ironDrill = new Texture(new File("assets/images/ironDrill.png"), "ironDrill");
+    public static Texture rubyWand = new Texture(new File("assets/images/rubyWand.png"), "rubyWand");
+    public static Texture emeraldWand = new Texture(new File("assets/images/emeraldWand.png"), "emeraldWand");
 
     public static Texture gaiaCharm = new Texture(new File("assets/images/gaiaCharm.png"), "gaiaCharm");
+
+    public static Texture heart = new Texture(new File("assets/images/heart.png"), "heart");
 }

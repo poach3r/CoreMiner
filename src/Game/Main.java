@@ -1,79 +1,77 @@
 package Game;
 
 import Game.Biomes.StageOneBiomes.StageOneBiomes;
-import Game.Biomes.StageOneBiomes.Void;
-import Game.Biomes.StageThreeBiomes.StageThreeBiomes;
-import Game.Biomes.StageTwoBiomes.StageTwoBiomes;
 import Game.Entities.Player.Player;
 import Game.Entities.Player.PlayerController;
-import Game.Graphics.CraftingUI;
-import Game.Logic.Crafter;
+import Game.Entities.Projectile.ProjectileController;
+import Library.Audio.AudioPlayer;
 import Library.Entities.GenericEntity;
 import Library.Entities.HostileEntityController;
 import Library.Entities.PassiveEntityController;
-import Library.Audio.AudioPlayer;
 import Library.Graphics.Renderer;
 import Library.Map.Map;
+import Library.Map.World;
 import Library.Misc.GameLoop;
 
 public class Main {
     private static Player player;
-    private static Crafter crafter;
     private static AudioPlayer audioPlayer;
 
     private static Library.Graphics.Frame frame;
     private static Renderer renderer;
     private static Library.Graphics.ContentPanel cpnl;
     private static Game.Graphics.Overlay overlay;
-    private static CraftingUI craftingUI;
 
     private static PlayerController playerController;
     private static HostileEntityController hostileEntityController;
     private static PassiveEntityController passiveEntityController;
+    private static ProjectileController projectileController;
 
-    private static Library.Map.Map map;
+    private static World world;
 
     private static GameLoop gl;
 
-    private static int stage;
-
     public Main() {
-        stage = 0;
+        world = new World();
+        genWorld();
 
         player = new Player();
-        crafter = new Crafter(player);
         audioPlayer = new AudioPlayer();
 
         frame = new Library.Graphics.Frame();
         renderer = new Renderer(frame, 16);
         cpnl = new Library.Graphics.ContentPanel();
         overlay = new Game.Graphics.Overlay(player);
-        craftingUI = new CraftingUI(frame, crafter, player);
 
-        playerController = new PlayerController(player, renderer, frame, audioPlayer);
+        playerController = new PlayerController(player, renderer, frame, audioPlayer, world);
+
         hostileEntityController = new HostileEntityController(player, renderer);
+        hostileEntityController.setOnDeathAction(entity -> {
+            world.getCurrentMap().removeEntity(entity);
+            renderer.promptFgUpdate();
+        });
+
         passiveEntityController = new PassiveEntityController(renderer);
-        map = new StageOneBiomes().generate();
+        passiveEntityController.setOnDeathAction(entity -> {
+            world.getCurrentMap().removeEntity(entity);
+            renderer.promptFgUpdate();
+        });
+
+        projectileController = new ProjectileController(renderer);
+
         gl = new GameLoop(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        playerController.miscLogic();
-                        playerController.move();
+                () -> {
+                    playerController.miscLogic();
+                    playerController.move();
 
-                        passiveEntityController.move();
+                    passiveEntityController.move();
+                    passiveEntityController.miscLogic();
 
-                        hostileEntityController.miscLogic();
-                        hostileEntityController.move();
-                    }
+                    hostileEntityController.miscLogic();
+                    hostileEntityController.move();
                 },
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        renderer.load();
-                        overlay.reload();
-                        craftingUI.displayInv();
-                    }
+                () -> {
+                    renderer.load();
                 });
     }
 
@@ -84,94 +82,74 @@ public class Main {
     public static void start() {
         new Main();
 
-        renderer.add(player);
-        cpnl.add(overlay);
+        world.getCurrentMap().addEntity(player);
         cpnl.add(renderer);
 
         frame.add(cpnl);
         frame.addMouseListener(playerController);
         frame.addKeyListener(playerController);
 
-        renderer.setMap(new Void().generate());
+        frame.revalidate();
+        frame.repaint();
+
+        renderer.addCustomRendering(overlay.getRenderingCode());
+        renderer.addCustomRendering(playerController.getToolRenderingCode());
+        renderer.promptCustomUpdate();
 
         loadNewMap();
 
-        toggleCrafting();
+        renderer.promptCustomUpdate();
 
         gl.run();
     }
 
-    public static void loadNewMap() {
-        playerController.setMap(map);
-        passiveEntityController.setMap(map);
-        hostileEntityController.setMap(map);
+    public static void p() {
+        renderer.promptCustomUpdate();
+    }
 
-        renderer.promptUpdate(map);
+    public static void genWorld() {
+        for (int i = 0; i < 3; i++) {
+            for (int n = 0; n < 3; n++) {
+                world.setMap(n, i, new StageOneBiomes().generate());
+            }
+        }
+        world.setCurrentMap(1, 1);
+    }
+
+    public static void loadNewMap() {
+        System.out.println(world.getCurrentMap().getEntities());
+        for (GenericEntity entity : world.getCurrentMap().getEntities()) {
+            if (entity.getHostility() == 0)
+                passiveEntityController.addEntity(entity);
+            else if (entity.getHostility() == 1)
+                hostileEntityController.addEntity(entity);
+        }
+
+        if (!world.getCurrentMap().getEntities().contains(player))
+            world.getCurrentMap().addEntity(player);
+
+        playerController.setMap(world.getCurrentMap());
+        passiveEntityController.setMap(world.getCurrentMap());
+        hostileEntityController.setMap(world.getCurrentMap());
+
+        renderer.promptBgUpdate(world.getCurrentMap());
+        renderer.promptFgUpdate();
 
         System.out.println("loading map");
     }
 
-    public static void updateMap(Map m) {
-        map = m;
-
-        playerController.setMap(m);
-        passiveEntityController.setMap(m);
-        hostileEntityController.setMap(m);
-
-        renderer.promptUpdate(m);
-
-        System.out.println("updating map");
-    }
-
-    public static void progress() {
-        removeAllEntitiesButPlayer();
-        stage += 1;
-//        switch(stage) {
-//            case 2, 3, 4, 5, 6 -> updateMap(new StageTwoBiomes().generate());
-//            case 7, 8, 9, 10, 11 -> updateMap(new StageThreeBiomes().generate());
-//        }
-
-        if(stage < 7)
-            updateMap(new StageTwoBiomes().generate());
-        else
-            updateMap(new StageThreeBiomes().generate());
-    }
-
-    // 1 = passive 2 = hostile, temp solution
-    public static void summonEntity(GenericEntity entity, int hostility) {
-        if(hostility == 1) {
-            if(passiveEntityController != null) {
-                passiveEntityController.addEntity(entity);
-                renderer.add(entity);
-                renderer.promptUpdate();
-            }
-        }
-
-        else if(hostility == 2) {
-            if (hostileEntityController != null) {
-                hostileEntityController.addEntity(entity);
-                renderer.add(entity);
-                renderer.promptUpdate();
-            }
-        }
-    }
-
     public static void removeAllEntitiesButPlayer() {
-        renderer.removeAllBut(player);
         hostileEntityController.removeAll();
         passiveEntityController.removeAll();
-        renderer.promptUpdate();
-        System.out.println("removing non player entities");
+        projectileController.removeAll();
+        renderer.promptFgUpdate();
     }
 
     public static void restart() {
-        renderer.removeAllEntities();
-
         player = new Player();
-        renderer.add(player);
         hostileEntityController.setTarget(player);
 
-        map = new StageOneBiomes().generate();
+        genWorld();
         loadNewMap();
 
         frame.removeKeyListener(playerController);
@@ -183,24 +161,16 @@ public class Main {
 
         overlay.setPlayer(player);
 
-        craftingUI.setPlayer(player);
-        crafter.setPlayer(player);
-        stage = 0;
+        renderer.promptCustomUpdate();
+        renderer.promptFgUpdate();
     }
 
-    public static void toggleCrafting() {
-        if(craftingUI.isOpened()) {
-            craftingUI.setOpenStatus(false);
-            cpnl.remove(craftingUI);
-        }
+    public static void addEntity(GenericEntity entity) {
+        if (entity.getHostility() == 0)
+            passiveEntityController.addEntity(entity);
+        else if (entity.getHostility() == 1)
+            hostileEntityController.addEntity(entity);
 
-        else {
-            craftingUI.setOpenStatus(true);
-            cpnl.add(craftingUI, 0);
-            craftingUI.displayInv();
-            craftingUI.displayRecipes();
-        }
-        cpnl.revalidate();
-        cpnl.repaint();
+        renderer.promptFgUpdate();
     }
 }

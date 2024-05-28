@@ -1,6 +1,5 @@
-package Library.Items;
+package Game.Items;
 
-import Game.Items.ItemType;
 import Library.Graphics.Texture;
 
 import java.util.HashMap;

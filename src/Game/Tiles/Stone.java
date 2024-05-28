@@ -6,7 +6,7 @@ import Game.Items.ItemIndex;
 
 public class Stone extends Library.Map.Tile {
     public Stone() {
-        super(6, "stone", TextureIndex.stone, false, true, SoundIndex.stoneStep);
+        super(6, "stone", TextureIndex.stone, false, SoundIndex.stoneStep);
         addResource(ItemIndex.stone, 1);
     }
 }

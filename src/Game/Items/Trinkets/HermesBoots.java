@@ -2,7 +2,6 @@ package Game.Items.Trinkets;
 
 import Game.Graphics.TextureIndex;
 import Game.Items.ItemIndex;
-import Library.Items.GenericTrinket;
 
 public class HermesBoots extends GenericTrinket {
     public HermesBoots() {

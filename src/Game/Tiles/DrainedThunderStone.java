@@ -6,7 +6,7 @@ import Game.Items.ItemIndex;
 
 public class DrainedThunderStone extends Library.Map.Tile {
     public DrainedThunderStone() {
-        super(13, "drainedThunderStone", TextureIndex.drainedThunderStone, false, true, SoundIndex.stoneStep);
+        super(13, "drainedThunderStone", TextureIndex.drainedThunderStone, false, SoundIndex.stoneStep);
         addResource(ItemIndex.stone, 1);
     }
 }
